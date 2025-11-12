@@ -389,5 +389,8 @@ const qtySelector = (
   }
 };
 
+r.post("/placeOrder", async(req, res)=>{
+  
+})
 
 export default r;

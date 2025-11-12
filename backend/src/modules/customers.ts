@@ -107,6 +107,7 @@ r.post("/", async (req, res) => {
   try {
     const existingCustomer = await Customer.find({
       email: parsedCustomer.data.email,
+      storeId: parsedCustomer.data.storeId,
     });
     if (existingCustomer)
       return res.status(409).json({

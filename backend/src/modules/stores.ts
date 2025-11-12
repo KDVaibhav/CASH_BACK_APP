@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { Store } from "../schema";
+import { StoreZ } from "../zod-schema";
 const r: Router = Router();
 
 r.get("/", async (req, res) => {
@@ -27,16 +28,17 @@ r.get("/", async (req, res) => {
 });
 
 r.post("/", async (req, res) => {
-  const { name } = req.body;
-  if (typeof name !== "string")
-    return res.status(400).json({ error: "Store Name should be string" });
+  const parsedStore = StoreZ.safeParse(req.body);
+  if (!parsedStore.success) {
+    return res.status(400).json({ error: parsedStore.error });
+  }
   try {
-    const existingStore = await Store.find({ name: name });
+    const existingStore = await Store.find({ name: parsedStore.data.name });
     if (existingStore)
-      return res
-        .status(409)
-        .json({ message: `Store with ${name} already exists` });
-    await Store.create({ name: name });
+      return res.status(409).json({
+        message: `Store with ${parsedStore.data.name} already exists`,
+      });
+    await Store.create(parsedStore.data);
     const stores = await Store.find().sort({ name: 1 }).limit(10);
     const totalCount = await Store.countDocuments();
     const hasMore = 10 < totalCount;
@@ -49,16 +51,18 @@ r.post("/", async (req, res) => {
 
 r.put("/:storeId", async (req, res) => {
   const storeId = req.params.storeId;
-  const { newName } = req.body;
-  if (typeof newName !== "string")
-    return res.status(400).json({ error: "Store Name should be string" });
+  const parsedStore = StoreZ.safeParse(req.body);
+  if (!parsedStore.success) {
+    return res.status(400).json({ error: parsedStore.error });
+  }
+
   try {
-    const existingStore = await Store.find({ name: newName });
+    const existingStore = await Store.find({ name: parsedStore.data.name });
     if (existingStore)
-      return res
-        .status(409)
-        .json({ message: `Store with ${newName} already exists` });
-    await Store.findByIdAndUpdate({ storeId }, { name: newName });
+      return res.status(409).json({
+        message: `Store with ${parsedStore.data.name} already exists`,
+      });
+    await Store.findByIdAndUpdate({ storeId }, parsedStore.data);
     const stores = await Store.find().sort({ name: 1 }).limit(10);
     const totalCount = await Store.countDocuments();
     const hasMore = 10 < totalCount;

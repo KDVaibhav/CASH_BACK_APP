@@ -12,7 +12,8 @@ const objectId = z.union([
 export const CampaignTypeEnum = z.enum(["PERCENTAGE", "FIXED_AMOUNT"]);
 export const TransactionTypeEnum = z.enum(["CREDIT", "DEBIT"]);
 export const TransactionStatusEnum = z.enum([
-  "COMPLETED",
+  "REDEEMED",
+  "ALLOTED",
   "PENDING",
   "FAILED",
   "EXPIRED",
@@ -48,7 +49,8 @@ export const CampaignScheduleZ = z.object({
 
 export const CashbackZ = z.object({
   value: MoneyZ,
-  name: z.string(),
+  campaignName: z.string(),
+  campaignId: objectId,
   deliveryDaysTime: DayTimeZ.optional(),
   expirationDaysTime: DayTimeZ.optional(),
 });
@@ -89,8 +91,7 @@ export const ProductZ = z.object({
         value: z.string(),
       })
     )
-    .optional()
-    .default([]),
+    .optional(),
 });
 
 export const CollectionZ = z.object({
@@ -111,17 +112,18 @@ export const OrderZ = z.object({
   totalQuantity: z.number(),
   value: MoneyZ,
   GMTTime: z.coerce.date(),
-  campaignCashback: z.number().min(0).default(0),
-  attributes: z.array(z.object()).optional(),
+  campaignCashback: z.array(CashbackZ).optional(),
+  attributes: z.array(z.object()).optional().default([]),
 });
 
 export const TransactionLogZ = z.object({
   _id: objectId.optional(),
   customerId: objectId,
-  campaignName: z.string(),
   storeId: objectId,
   campaignId: objectId,
-  GMTTime: z.coerce.date(),
+  campaignName: z.string(),
+  deliveryDayTime: z.date().optional(),
+  expiryDayTime: z.date().optional(),
   description: z.string().optional(),
   type: TransactionTypeEnum.default("CREDIT"),
   value: MoneyZ,

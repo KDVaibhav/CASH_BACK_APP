@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import apiRouter from "./routes";
 import mongoose from "mongoose";
-import { currencyConverter } from "./utils";
+import cashbackWorker from "./jobs/workers/cashback.worker";
 dotenv.config();
 const app = express();
 
@@ -20,7 +20,9 @@ const connectDb = async () => {
 
 app.use(cors());
 app.use(express.json());
-currencyConverter(100, "USD", "GBP");
+
+cashbackWorker;
+
 app.use("/api", apiRouter);
 
 connectDb().then(() => {

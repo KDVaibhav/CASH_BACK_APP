@@ -1,5 +1,12 @@
 import { Router } from "express";
-import { Campaign, CurrencyCode, Customer, Product, Store } from "../schema";
+import {
+  Campaign,
+  CurrencyCode,
+  Customer,
+  Product,
+  Store,
+  TransactionLog,
+} from "../schema";
 import {
   CampaignType,
   CampaignZ,
@@ -11,8 +18,10 @@ import {
   QtyType,
   StoreType,
   TierType,
+  TransactionLogType,
 } from "../zod-schema";
 import { currencyConverter } from "../utils";
+import { cashbackQueue } from "../jobs/queues/cashback.queue";
 const r = Router();
 
 r.post("/processCashback", async (req, res) => {
@@ -270,7 +279,7 @@ r.post("/processCashback", async (req, res) => {
                 const key = Object.keys(parsed)[0];
                 const value = parsed[key];
                 const filteredProducts = products.filter((product) =>
-                  product.product.attributes.includes({ key, value })
+                  product.product.attributes?.includes({ key, value })
                 );
                 isApplicable = qtySelector(
                   filteredProducts,
@@ -312,7 +321,8 @@ r.post("/processCashback", async (req, res) => {
           }
           if (isApplicable) {
             let cashback: CashbackType = {
-              name: campaign.name,
+              campaignName: campaign.name,
+              campaignId: campaign._id!,
               value: tier.value,
             };
             if (campaign.deliveryDaysTime) {
@@ -334,8 +344,8 @@ r.post("/processCashback", async (req, res) => {
       }
     }
     return res.status(200).json({ message: "No Campaigns at this moment" });
-  } catch (err) {
-    console.error("Error Processing Cashback", err);
+  } catch (err: any) {
+    console.error("Error Processing Cashback", err.message);
     res.status(500).json({ error: "Error Processing Cashback" });
   }
 });
@@ -385,12 +395,108 @@ const qtySelector = (
       return isInclude ? totalCost <= qty : totalCost >= qty;
     } else {
       return isInclude ? totalCost === qty : totalCost === qty;
-    } 
+    }
   }
 };
 
-r.post("/placeOrder", async(req, res)=>{
-  
-})
+r.post("/placeOrder", async (req, res) => {
+  const parsedOrder = OrderZ.safeParse(req.body);
+  if (!parsedOrder.success) {
+    return res.status(400).json({ error: parsedOrder.error });
+  }
+  try {
+    const parsedOrderData = parsedOrder.data;
+    const customerData = await Customer.findById(parsedOrderData.customerId);
+    if (!customerData) {
+      return res.status(404).json({ message: "Invalid Customer ID" });
+    }
+    const store = await Store.findById(parsedOrderData.storeId);
+    if (!store) {
+      return res.status(404).json({ message: "Invalid Store ID" });
+    }
+    customerData.customerLifeTimeSpent += currencyConverter(
+      parsedOrderData.value.amount,
+      parsedOrderData.value.currency,
+      customerData.currency
+    );
+    // customer.customerLifeTimeCashback += currencyConverter();
+
+    if (!parsedOrderData.campaignCashback) {
+      return res.status(200).json({ message: "Order Placed Successfully" });
+    }
+    let cashbackValue = 0;
+    for (const campaign of parsedOrderData.campaignCashback) {
+      const value = currencyConverter(
+        campaign.value.amount,
+        campaign.value.currency,
+        store.currency
+      );
+      let transactionObject: TransactionLogType = {
+        storeId: parsedOrder.data.storeId,
+        customerId: parsedOrderData.customerId,
+        campaignId: campaign.campaignId,
+        campaignName: campaign.campaignName,
+        type: "CREDIT",
+        value: {
+          amount: value,
+          currency: store.currency,
+        },
+        status: campaign.deliveryDaysTime ? "PENDING" : "ALLOTED",
+      };
+      if (!campaign.deliveryDaysTime) {
+        cashbackValue += currencyConverter(
+          campaign.value.amount,
+          campaign.value.currency,
+          customerData.currency
+        );
+      }
+      if (campaign.expirationDaysTime) {
+        const { days, time } = campaign.expirationDaysTime;
+        let expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + days);
+        const [hours, minutes] = time.split(":").map(Number);
+        expiryDate.setUTCHours(hours, minutes, 0, 0);
+        transactionObject.expiryDayTime = expiryDate;
+      }
+      if (campaign.deliveryDaysTime) {
+        const { days, time } = campaign.deliveryDaysTime;
+        let deliveryDaysTime = new Date();
+        deliveryDaysTime.setDate(deliveryDaysTime.getDate() + days);
+        const [hours, minutes] = time.split(":").map(Number);
+        deliveryDaysTime.setUTCHours(hours, minutes, 0, 0);
+        transactionObject.deliveryDayTime = deliveryDaysTime;
+      }
+      await TransactionLog.create(transactionObject);
+      if (transactionObject.deliveryDayTime) {
+        const delay = transactionObject.deliveryDayTime.getTime() - Date.now();
+        if (delay > 0) {
+          await cashbackQueue.add(
+            "activateCashback",
+            { transactionId: transactionObject._id },
+            { delay }
+          );
+        }
+      }
+      if (transactionObject.expiryDayTime) {
+        const delay = transactionObject.expiryDayTime.getTime() - Date.now();
+        if (delay > 0) {
+          await cashbackQueue.add(
+            "expireCashback",
+            { transactionId: transactionObject._id },
+            { delay }
+          );
+        }
+      }
+      customerData.customerLifeTimeCashback += cashbackValue;
+      await Customer.findByIdAndUpdate(
+        { _id: parsedOrderData.customerId },
+        customerData
+      );
+      return res.status(200).json({ message: "Order Placed Successfully" });
+    }
+  } catch (err: any) {
+    console.error("Error placing order: ", err.message);
+  }
+});
 
 export default r;

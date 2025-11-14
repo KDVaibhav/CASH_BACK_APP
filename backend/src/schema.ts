@@ -25,7 +25,8 @@ const OrderTags = {
 };
 
 export const TransactionStatus = {
-  COMPLETED: "COMPLETED",
+  REDEEMED: "REDEEMED",
+  CREDITED: "CREDITED",
   PENDING: "PENDING",
   FAILED: "FAILED",
   EXPIRED: "EXPIRED",
@@ -154,37 +155,41 @@ const collectionSchema = new mongoose.Schema({
 //   tags: { type: [OrderTags], default: [] },
 // });
 
-const transactionLogSchema = new mongoose.Schema({
-  customerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Customer",
-    required: true,
+const transactionLogSchema = new mongoose.Schema(
+  {
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
+      required: true,
+    },
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      required: true,
+    }, //for processing transactions
+    campaignId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Campaign",
+      required: true,
+    },
+    campaignName: { type: String, required: true },
+    description: { type: String },
+    type: {
+      type: String,
+      enum: Object.values(TransactionType),
+      required: true,
+    },
+    expiryDayTime: { type: dayTimeSchema },
+    deliveryDayTime: { type: dayTimeSchema },
+    value: { type: MoneySchema, required: true },
+    status: {
+      type: String,
+      enum: Object.values(TransactionStatus),
+      required: true,
+    },
   },
-  storeId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Store",
-    required: true,
-  }, //for processing transactions
-  campaignId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Campaign",
-    required: true,
-  },
-  campaignName: { type: String, required: true },
-  date: { type: Date, required: true },
-  description: { type: String },
-  type: {
-    type: String,
-    enum: Object.values(TransactionType),
-    required: true,
-  },
-  value: { type: MoneySchema, required: true },
-  status: {
-    type: String,
-    enum: Object.values(TransactionStatus),
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 const qtySchema = new mongoose.Schema(
   {
@@ -297,33 +302,51 @@ const TierSchema = new mongoose.Schema(
         required: true,
       },
     ],
-    value: { type: MoneySchema, required: true },
+    value: { type: MoneySchema, required: true }, //shift currency to campaign
   },
   { _id: false }
 );
 
-const campaignSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  storeId: {
+const campaignSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      required: true,
+    },
+    isEnabled: { type: Boolean, default: false },
+    type: {
+      type: String,
+      enum: Object.values(CampaignType),
+      required: true,
+    },
+    timeZone: {
+      type: String,
+      enum: Object.keys(TimeZone),
+      required: true,
+    },
+    campaignSchedule: { type: campaignScheduleSchema },
+    deliveryDaysTime: { type: Date },
+    expirationDaysTime: { type: Date },
+    tiers: [{ type: TierSchema, required: true }],
+  },
+  { timestamps: true }
+);
+
+const scheduledJob = new mongoose.Schema({
+  jobType: { type: String, enum: ["ACTIVATE", "EXPIRE"] },
+  transactionLogId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Store",
+    ref: "transactionLog",
     required: true,
   },
-  isEnabled: { type: Boolean, default: false },
-  type: {
-    type: String,
-    enum: Object.values(CampaignType),
-    required: true,
-  },
-  timeZone: {
-    type: String,
-    enum: Object.keys(TimeZone),
-    required: true,
-  },
-  campaignSchedule: { type: campaignScheduleSchema },
-  deliveryDaysTime: { type: dayTimeSchema },
-  expirationDaysTime: { type: dayTimeSchema },
-  tiers: [{ type: TierSchema, required: true }],
+  category: { type: String, enum: ["SCHEDULED", "FAILED"] },
+  scheduledFor: { type: Date, required: true },
+  processed: { type: Boolean, default: false },
+  processedAt: { type: Date },
+  retries: { type: Number, default: 0 },
+  error: { type: String },
 });
 
 export const Store = mongoose.model<StoreType>("Store", storeSchema);

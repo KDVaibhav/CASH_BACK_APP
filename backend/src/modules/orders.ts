@@ -4,24 +4,19 @@ import {
   CurrencyCode,
   Customer,
   Product,
+  ScheduledJob,
   Store,
   TransactionLog,
 } from "../schema";
 import {
   CampaignType,
-  CampaignZ,
   CashbackType,
-  CollectionType,
-  CollectionZ,
   OrderZ,
   ProductType,
   QtyType,
-  StoreType,
-  TierType,
   TransactionLogType,
 } from "../zod-schema";
 import { currencyConverter } from "../utils";
-import { cashbackQueue } from "../jobs/queues/cashback.queue";
 const r = Router();
 
 r.post("/processCashback", async (req, res) => {
@@ -466,25 +461,29 @@ r.post("/placeOrder", async (req, res) => {
         deliveryDaysTime.setUTCHours(hours, minutes, 0, 0);
         transactionObject.deliveryDayTime = deliveryDaysTime;
       }
-      await TransactionLog.create(transactionObject);
+      const transaction = await TransactionLog.create(transactionObject);
       if (transactionObject.deliveryDayTime) {
-        const delay = transactionObject.deliveryDayTime.getTime() - Date.now();
+        const deliveryTime = transactionObject.deliveryDayTime;
+        const delay = deliveryTime.getTime() - Date.now();
         if (delay > 0) {
-          await cashbackQueue.add(
-            "activateCashback",
-            { transactionId: transactionObject._id },
-            { delay }
-          );
+          await ScheduledJob.create({
+            type: "DELIVER_CASHBACK",
+            category: "SCHEDULED",
+            transactionId: transaction._id,
+            scheduledFor: deliveryTime,
+          });
         }
       }
       if (transactionObject.expiryDayTime) {
-        const delay = transactionObject.expiryDayTime.getTime() - Date.now();
+        const expiryTime = transactionObject.expiryDayTime;
+        const delay = expiryTime.getTime() - Date.now();
         if (delay > 0) {
-          await cashbackQueue.add(
-            "expireCashback",
-            { transactionId: transactionObject._id },
-            { delay }
-          );
+          await ScheduledJob.create({
+            type: "EXPIRE_CASHBACK",
+            category: "SCHEDULED",
+            transactionId: transaction._id,
+            scheduledFor: expiryTime,
+          });
         }
       }
       customerData.customerLifeTimeCashback += cashbackValue;

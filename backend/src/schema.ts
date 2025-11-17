@@ -5,6 +5,7 @@ import {
   CollectionType,
   CustomerType,
   ProductType,
+  ScheduleJobType,
   StoreType,
   TransactionLogType,
 } from "./zod-schema";
@@ -191,6 +192,20 @@ const transactionLogSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+const scheduledJobSchema = new mongoose.Schema({
+  transactionLogId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "transactionLog",
+    required: true,
+  },
+  type: { type: String, enum: ["DELIVER_CASHBACK", "EXPIRE_CASHBACK"] },
+  category: { type: String, enum: ["SCHEDULED", "FAILED", "COMPLETED"] },
+  scheduledFor: { type: Date, required: true },
+  processedAt: { type: Date },
+  retries: { type: Number, default: 0 },
+  error: { type: String },
+});
+
 const qtySchema = new mongoose.Schema(
   {
     qtyOption: {
@@ -334,21 +349,6 @@ const campaignSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const scheduledJob = new mongoose.Schema({
-  jobType: { type: String, enum: ["ACTIVATE", "EXPIRE"] },
-  transactionLogId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "transactionLog",
-    required: true,
-  },
-  category: { type: String, enum: ["SCHEDULED", "FAILED"] },
-  scheduledFor: { type: Date, required: true },
-  processed: { type: Boolean, default: false },
-  processedAt: { type: Date },
-  retries: { type: Number, default: 0 },
-  error: { type: String },
-});
-
 export const Store = mongoose.model<StoreType>("Store", storeSchema);
 export const Campaign = mongoose.model<CampaignType>(
   "Campaign",
@@ -366,4 +366,9 @@ export const Customer = mongoose.model<CustomerType>(
 export const TransactionLog = mongoose.model<TransactionLogType>(
   "TransactionLog",
   transactionLogSchema
+);
+
+export const ScheduledJob = mongoose.model<ScheduleJobType>(
+  "ScheduleJob",
+  scheduledJobSchema
 );

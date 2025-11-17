@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import apiRouter from "./routes";
 import mongoose from "mongoose";
-import cashbackWorker from "./jobs/workers/cashback.worker";
+import { startScheduler } from "./jobs/scheduler";
 dotenv.config();
 const app = express();
 
@@ -20,11 +20,9 @@ const connectDb = async () => {
 
 app.use(cors());
 app.use(express.json());
-
-cashbackWorker;
-
 app.use("/api", apiRouter);
 
 connectDb().then(() => {
+  startScheduler();
   app.listen(4000, () => console.log("Server Running on port 4000"));
 });

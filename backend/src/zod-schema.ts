@@ -130,6 +130,17 @@ export const TransactionLogZ = z.object({
   status: TransactionStatusEnum.default("PENDING"),
 });
 
+export const ScheduledJobZ = z.object({
+  _id: objectId.optional(),
+  transactionLogId: objectId,
+  type: z.enum(["DELIVER_CASHBACK", "EXPIRE_CASHBACK"]),
+  category: z.enum(["SCHEDULED", "FAILED", "COMPLETED"]).default("SCHEDULED"),
+  scheduledFor: z.coerce.date(),
+  processedAt: z.coerce.date().optional(),
+  retries: z.number().default(0),
+  error: z.string().optional(),
+});
+
 export const QtyZ = z.object({
   qtyOption: z.enum(["UNIQUE", "ALL", "SUBTOTAL"]),
   compOperators: z.enum(["GTE", "LTE", "EQUAL"]),
@@ -213,6 +224,7 @@ export type CustomerType = z.infer<typeof CustomerZ>;
 export type ProductType = z.infer<typeof ProductZ>;
 export type CollectionType = z.infer<typeof CollectionZ>;
 export type TransactionLogType = z.infer<typeof TransactionLogZ>;
+export type ScheduleJobType = z.infer<typeof ScheduledJobZ>;
 export type CashbackType = z.infer<typeof CashbackZ>;
 export type OrderType = z.infer<typeof OrderZ>;
 export type EligibilityRuleType = z.infer<typeof EligibilityRuleZ>;

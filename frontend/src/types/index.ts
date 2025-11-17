@@ -125,32 +125,41 @@ export interface Qty {
   compOperators: CompOperator;
   qty: number;
 }
-
+export type CustomerRuleTypeEnum = "CUSTOMER_TAGS" | "CUSTOMER_LIFETIME_SPENT";
+export type CartRuleTypeEnum =
+  | "CART_QUANTITY"
+  | "CART_TOTAL"
+  | "CART_ATTRIBUTES"
+  | "CART_CURRENCY";
+export type ProductRuleTypeEnum =
+  | "SPECIFIC_PRODUCTS"
+  | "PRODUCTS_WITH_VARIANTS"
+  | "COLLECTIONS"
+  | "PRODUCT_LINE_ATTRIBUTES"
+  | "PRODUCT_TAGS"
+  | "PRODUCT_TYPES";
 export interface CustomerRuleType {
-  type: "CUSTOMER_TAGS" | "CUSTOMER_LIFETIME_SPENT";
+  type: CustomerRuleTypeEnum;
+  description?: string;
   option: "IS" | "IS_NOT" | "GTE" | "LTE" | "EQUAL";
   value: string[];
 }
 
 export interface CartRuleType {
-  type: "CART_QUANTITY" | "CART_TOTAL" | "CART_ATTRIBUTES" | "CART_CURRENCY";
+  type: CartRuleTypeEnum;
+  description?: string;
   attribute?: {
     isSelected: boolean;
     subOption: "IS" | "IS_NOT" | "CONTAINS" | "DOES_NOT_CONTAINS";
   };
   qty?: Qty;
-  option: "GTE" | "LTE" | "EQUAL" | "IS" | "IS_NOT";
-  value: string;
+  option?: "GTE" | "LTE" | "EQUAL";
+  value?: string;
 }
 
 export interface ProductRuleType {
-  type:
-    | "SPECIFIC_PRODUCTS"
-    | "PRODUCTS_WITH_VARIANTS"
-    | "COLLECTIONS"
-    | "PRODUCT_LINE_ATTRIBUTES"
-    | "PRODUCT_TAGS"
-    | "PRODUCT_TYPES";
+  type: ProductRuleTypeEnum;
+  description?: string;
   qty: Qty;
   isInclude: boolean;
   attribute?: {
@@ -159,6 +168,8 @@ export interface ProductRuleType {
   };
   value: string[];
 }
+
+export type ERuleTypeEnum = "CUSTOMER" | "CART" | "PRODUCT";
 
 export type EligibilityRuleType =
   | { category: "CUSTOMER"; rule: CustomerRuleType }

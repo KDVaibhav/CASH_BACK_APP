@@ -15,3 +15,4 @@ export const useNavigationStore = create<NavState>((set) => ({
   breadcrumbs: [{ label: "Home" }],
   navigate: (page, bc) => set({ currentPage: page, breadcrumbs: bc }),
 }));
+

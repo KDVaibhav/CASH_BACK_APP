@@ -14,9 +14,9 @@ export const CampaignDashboard = () => {
         <Button
           onClick={() =>
             navigate("Create Campaign", [
-              { label: "Home", path: "/" },
-              { label: "Campaigns", path: "/campaigns" },
-              { label: "Create Campaign", path: "/campaigns/create" },
+              { label: "Home" },
+              { label: "Campaigns" },
+              { label: "Create Campaign" },
             ])
           }
           label={

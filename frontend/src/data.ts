@@ -75,3 +75,96 @@ export const exchangeRates: Record<string, number> = {
   NZD: 1.772,
   SGD: 1.30183,
 };
+
+export const rules = [
+  {
+    category: "Customer rules",
+
+    rules: [
+      {
+        type: "Customer Tags",
+        description: "Customer must contain these tags",
+        option: "IS",
+        value: [],
+      },
+      {
+        type: "Customer Lifetime Spent",
+        description: "Total amount customer has spent",
+        option: "GTE",
+        value: ["0"],
+      },
+    ],
+  },
+  {
+    category: "Cart rules",
+    rules: [
+      {
+        type: "Cart Quantity",
+        description: "Minimum items in cart",
+        qty: {
+          qtyOption: "UNIQUE",
+          compOperators: "GTE",
+          qty: 0,
+        },
+      },
+      {
+        type: "Cart Total",
+        description: "Minimum cart value",
+        option: "GTE",
+        value: ["100", "USD"],
+      },
+      // {
+      //   name: "Cart Attributes",
+      //   description: "Must have these attributes",
+      // },
+      // {
+      //   name: "Cart Currency",
+      //   description: "Cart currency must match",
+      // },
+    ],
+  },
+  {
+    category: "Product rules",
+
+    rules: [
+      {
+        type: "Specific Products",
+        description: "Must include these products",
+        qty: {
+          qtyOption: "UNIQUE",
+          compOperators: "GTE",
+          qty: 0,
+        },
+        isInclude: true,
+        value: [],
+      },
+      {
+        type: "Products with variants",
+        description: "Must include these product variants",
+        qty: {
+          qtyOption: "UNIQUE",
+          compOperators: "GTE",
+          qty: 0,
+        },
+        isInclude: true,
+        value: [],
+      },
+      // {
+      //   name: "Collections",
+      //   description: "Must include products from these collections",
+      // },
+      // {
+      //   name: "Product (Line) Attributes",
+      //   description: "Must include products with these attributes",
+      // },
+      // {
+      //   name: "Product tags",
+      //   description: "Must include products with these tags",
+      // },
+      // {
+      //   name: "Product types",
+      //   description: "Must include these product types",
+      // },
+    ],
+  },
+];

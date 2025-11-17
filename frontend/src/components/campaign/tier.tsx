@@ -17,18 +17,19 @@ export const Tier = ({
   const { amount, currency } = tier.value;
   const [tierOpen, setTierOpen] = useState(true);
   const [ruleModalOpen, setRuleModalOpen] = useState(false);
+  console.log(tier);
   const handleRefresh = () => {};
   return (
     <div className=" border-gray-300 border rounded-xl">
       {ruleModalOpen && (
         <AddRuleModal
-          open={ruleModalOpen}
           setOpen={setRuleModalOpen}
-          tier={tier}
-          setTier={(eligibilityRule: EligibilityRuleType) => ({
-            ...tier,
-            eligibilityRule: [...tier.eligibilityRules, eligibilityRule],
-          })}
+          setRule={(eligibilityRule: EligibilityRuleType) =>
+            setTier({
+              ...tier,
+              eligibilityRules: [...tier.eligibilityRules, eligibilityRule],
+            })
+          }
         />
       )}
       <div
@@ -60,7 +61,40 @@ export const Tier = ({
         } transition-transform `}
       >
         <div className="flex items-center justify-between">
-          <span>Eligibility rules</span>
+          <div className="flex items-center gap-2">
+            <span>Eligibility rules</span>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400 text-sm">Match:</span>
+              <div className="flex  rounded-xl text-xs bg-gray-100  border-gray-300 border">
+                <span
+                  className={`py-1 px-2 rounded-l-xl ${
+                    tier.eligibilityType === "AND" && "bg-blue-500 text-white"
+                  } transition-transform`}
+                  onClick={() =>
+                    setTier({
+                      ...tier,
+                      eligibilityType: "AND",
+                    })
+                  }
+                >
+                  AND
+                </span>
+                <span
+                  className={`py-1 px-2 rounded-r-xl ${
+                    tier.eligibilityType === "OR" && "bg-blue-500 text-white"
+                  } transition-transform`}
+                  onClick={() =>
+                    setTier({
+                      ...tier,
+                      eligibilityType: "OR",
+                    })
+                  }
+                >
+                  OR
+                </span>
+              </div>
+            </div>
+          </div>
           <Button
             className="bg-gray-100 text-black hover:bg-gray-200"
             onClick={() => setRuleModalOpen(true)}
@@ -97,8 +131,8 @@ export const Tier = ({
             />
           ))}
         {/* value */}
-        <div className="">
-          <span>Cashback value</span>
+        <div className="flex flex-col gap-2">
+          <span className="">Cashback value</span>
           <div className="flex gap-2 w-full bg-gray-50 items-center p-2 rounded-xl">
             <div>{currency}</div>
             <input

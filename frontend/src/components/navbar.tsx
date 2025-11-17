@@ -21,8 +21,8 @@ export const Navbar = () => {
       <button
         onClick={() =>
           navigate("Create Store", [
-            { label: "Home", path: "/" },
-            { label: "Create Store", path: "/createStore" },
+            { label: "Home" },
+            { label: "Create Store" },
           ])
         }
         className="bg-green-600 text-white flex p-2 rounded-xl gap-2"

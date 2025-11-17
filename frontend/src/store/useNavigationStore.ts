@@ -2,7 +2,6 @@ import { create } from "zustand";
 
 interface Breadcrumb {
   label: string;
-  path: string;
 }
 
 interface NavState {
@@ -13,6 +12,6 @@ interface NavState {
 
 export const useNavigationStore = create<NavState>((set) => ({
   currentPage: "Home",
-  breadcrumbs: [{ label: "Home", path: "/" }],
+  breadcrumbs: [{ label: "Home" }],
   navigate: (page, bc) => set({ currentPage: page, breadcrumbs: bc }),
 }));

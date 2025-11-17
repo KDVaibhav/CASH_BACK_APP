@@ -16,6 +16,7 @@ export const CreateCampaign = () => {
       amount: 100,
       currency: currency,
     },
+    eligibilityRules: [],
   };
 
   const emptyCampaign: CampaignType = {
@@ -33,7 +34,7 @@ export const CreateCampaign = () => {
     setFormData((prev) => ({
       ...prev,
       tiers: [
-        ...formData.tiers,
+        ...prev.tiers,
         { ...emptyTier, tierPos: formData.tiers.length + 1 },
       ],
     }));
@@ -65,16 +66,23 @@ export const CreateCampaign = () => {
           formData.tiers.map((tier: TierType, id) => (
             <Tier
               tier={tier}
-              setTier={(e) =>
+              setTier={(updatedTier) =>
                 setFormData((prev) => ({
                   ...prev,
-                  tiers: [
-                    ...prev.tiers.filter((t) => t.tierPos !== tier.tierPos),
-                    e.target.value,
-                  ],
+                  tiers: prev.tiers.map((t) =>
+                    t.tierPos === tier.tierPos ? updatedTier : t
+                  ),
                 }))
               }
               key={id}
+              handleDelete={() =>
+                setFormData((prev) => ({
+                  ...prev,
+                  tiers: prev.tiers.filter(
+                    (t, idx) => t.tierPos !== tier.tierPos
+                  ),
+                }))
+              }
             />
           ))}
       </div>

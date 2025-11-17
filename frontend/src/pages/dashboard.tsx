@@ -85,10 +85,7 @@ export const Dashboard = () => {
             </div>
             <div
               onClick={() =>
-                navigate("Orders", [
-                  { label: "Home", path: "/" },
-                  { label: "Orders", path: "/orders" },
-                ])
+                navigate("Orders", [{ label: "Home" }, { label: "Orders" }])
               }
               className="w-full text-center bg-blue-500 text-white font-semibold p-3 rounded-xl hover:bg-blue-400 transition"
             >
@@ -110,8 +107,8 @@ export const Dashboard = () => {
             <div
               onClick={() =>
                 navigate("Campaigns", [
-                  { label: "Home", path: "/" },
-                  { label: "Campaigns", path: "/campaigns" },
+                  { label: "Home" },
+                  { label: "Campaigns" },
                 ])
               }
               className="w-full text-center bg-blue-500 text-white font-semibold p-3 rounded-xl hover:bg-blue-400 transition"
@@ -134,8 +131,8 @@ export const Dashboard = () => {
             <div
               onClick={() =>
                 navigate("Customers", [
-                  { label: "Home", path: "/" },
-                  { label: "Customers", path: "/customers" },
+                  { label: "Home" },
+                  { label: "Customers" },
                 ])
               }
               className="w-full text-center bg-blue-500 text-white font-semibold p-3 rounded-xl hover:bg-blue-400 transition"

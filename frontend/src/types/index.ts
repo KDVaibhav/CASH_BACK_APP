@@ -166,10 +166,9 @@ export type EligibilityRuleType =
   | { category: "PRODUCT"; rule: ProductRuleType };
 
 export interface TierType {
-  _id?: ObjectId;
   tierPos: number;
-  eligibilityType?: "AND" | "OR";
-  eligibilityRules?: EligibilityRuleType[];
+  eligibilityType: "AND" | "OR";
+  eligibilityRules: EligibilityRuleType[];
   value: Money;
 }
 

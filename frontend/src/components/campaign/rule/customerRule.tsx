@@ -1,6 +1,14 @@
 import React from "react";
 import { CustomerRuleType } from "../../../types";
 
-export const CustomerRule = ({ rule }: { rule: CustomerRuleType }) => {
+export const CustomerRule = ({
+  rule,
+  setRule,
+  handleDelete,
+}: {
+  rule: CustomerRuleType;
+  setRule: (updatedRule: CustomerRuleType) => void;
+  handleDelete: () => void;
+}) => {
   return <div>C</div>;
 };

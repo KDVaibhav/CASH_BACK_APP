@@ -120,6 +120,13 @@ export const Tier = ({
                   ),
                 })
               }
+              tier={tier}
+              setTier={(duplicateRule: EligibilityRuleType) =>
+                setTier({
+                  ...tier,
+                  eligibilityRules: [...tier.eligibilityRules, duplicateRule],
+                })
+              }
               handleDelete={() =>
                 setTier({
                   ...tier,

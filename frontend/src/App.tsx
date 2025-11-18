@@ -29,9 +29,11 @@ function App() {
   return (
     <>
       <Navbar />
-      <div className="px-8 py-2 bg-gray-50 h-screen">
-        <BreadCrumbs />
-        {renderPage()}
+      <div className="flex items-center justify-center bg-gray-50">
+        <div className=" px-8 py-2 w-full h-screen max-w-[1200px]">
+          <BreadCrumbs />
+          {renderPage()}
+        </div>
       </div>
     </>
   );

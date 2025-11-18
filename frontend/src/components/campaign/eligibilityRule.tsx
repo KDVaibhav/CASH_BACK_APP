@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  CartRuleType,
-  CustomerRuleType,
-  EligibilityRuleType,
-  ProductRuleType,
-} from "../../types";
+import { EligibilityRuleType, TierType } from "../../types";
 import { CustomerRule } from "./rule/customerRule";
 import { CartRule } from "./rule/cartRule";
 import { ProductRule } from "./rule/productRule";
@@ -13,11 +8,15 @@ export const EligibilityRule = ({
   er,
   index,
   setErule,
+  tier,
+  setTier,
   handleDelete,
 }: {
   er: EligibilityRuleType;
   index: number;
   setErule: (updatedRule: EligibilityRuleType, index: number) => void;
+  tier: TierType;
+  setTier: (duplicateRule: EligibilityRuleType) => void;
   handleDelete: () => void;
 }) => {
   const { category, rule } = er;
@@ -31,6 +30,8 @@ export const EligibilityRule = ({
           <CustomerRule
             rule={rule}
             setRule={handleRuleUpdate}
+            tier={tier}
+            setTier={setTier}
             handleDelete={handleDelete}
           />
         );
@@ -39,6 +40,8 @@ export const EligibilityRule = ({
           <CartRule
             rule={rule}
             setRule={handleRuleUpdate}
+            tier={tier}
+            setTier={setTier}
             handleDelete={handleDelete}
           />
         );
@@ -47,6 +50,8 @@ export const EligibilityRule = ({
           <ProductRule
             rule={rule}
             setRule={handleRuleUpdate}
+            tier={tier}
+            setTier={setTier}
             handleDelete={handleDelete}
           />
         );

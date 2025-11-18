@@ -125,19 +125,19 @@ export interface Qty {
   compOperators: CompOperator;
   qty: number;
 }
-export type CustomerRuleTypeEnum = "CUSTOMER_TAGS" | "CUSTOMER_LIFETIME_SPENT";
+export type CustomerRuleTypeEnum = "CUSTOMER TAGS" | "CUSTOMER LIFETIME SPENT";
 export type CartRuleTypeEnum =
-  | "CART_QUANTITY"
-  | "CART_TOTAL"
-  | "CART_ATTRIBUTES"
-  | "CART_CURRENCY";
+  | "CART QUANTITY"
+  | "CART TOTAL"
+  | "CART ATTRIBUTES"
+  | "CART CURRENCY";
 export type ProductRuleTypeEnum =
-  | "SPECIFIC_PRODUCTS"
-  | "PRODUCTS_WITH_VARIANTS"
+  | "SPECIFIC PRODUCTS"
+  | "PRODUCTS WITH VARIANTS"
   | "COLLECTIONS"
-  | "PRODUCT_LINE_ATTRIBUTES"
-  | "PRODUCT_TAGS"
-  | "PRODUCT_TYPES";
+  | "PRODUCT LINE ATTRIBUTES"
+  | "PRODUCT TAGS"
+  | "PRODUCT TYPES";
 export interface CustomerRuleType {
   type: CustomerRuleTypeEnum;
   description?: string;

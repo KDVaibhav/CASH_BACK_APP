@@ -111,7 +111,7 @@ export const rules = [
         type: "Cart Total",
         description: "Minimum cart value",
         option: "GTE",
-        value: ["100", "USD"],
+        value: ["100"],
       },
       // {
       //   name: "Cart Attributes",

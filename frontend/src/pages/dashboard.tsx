@@ -21,7 +21,6 @@ export const Dashboard = () => {
   const isDisabled = !store;
   useEffect(() => {
     const handleSearch = async () => {
-      console.log(searchVal);
       const stores: Store[] = await request.get(`/stores?search=${searchVal}`);
       setFilteredResults(stores);
     };

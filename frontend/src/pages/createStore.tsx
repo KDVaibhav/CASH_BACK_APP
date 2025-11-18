@@ -14,7 +14,6 @@ export const CreateStore = () => {
         timeZone,
         currency,
       });
-      console.log(res);
     } catch (err: any) {
       console.error("Error Creating Store", err);
     }

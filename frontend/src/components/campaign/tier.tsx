@@ -17,7 +17,6 @@ export const Tier = ({
   const { amount, currency } = tier.value;
   const [tierOpen, setTierOpen] = useState(true);
   const [ruleModalOpen, setRuleModalOpen] = useState(false);
-  console.log(tier);
   const handleRefresh = () => {};
   return (
     <div className=" border-gray-300 border rounded-xl">
@@ -107,36 +106,50 @@ export const Tier = ({
         </div>
         {/* ERs */}
         {eligibilityRules.length > 0 &&
-          eligibilityRules.map((eligibilityRule: EligibilityRuleType, idx) => (
-            <EligibilityRule
-              key={idx}
-              er={eligibilityRule}
-              index={idx}
-              setErule={(updatedRule: EligibilityRuleType, index: number) =>
-                setTier({
-                  ...tier,
-                  eligibilityRules: tier.eligibilityRules.map((er, i) =>
-                    i === index ? updatedRule : er
-                  ),
-                })
-              }
-              tier={tier}
-              setTier={(duplicateRule: EligibilityRuleType) =>
-                setTier({
-                  ...tier,
-                  eligibilityRules: [...tier.eligibilityRules, duplicateRule],
-                })
-              }
-              handleDelete={() =>
-                setTier({
-                  ...tier,
-                  eligibilityRules: tier.eligibilityRules.filter(
-                    (_, i) => i !== idx
-                  ),
-                })
-              }
-            />
-          ))}
+          eligibilityRules.map((eligibilityRule: EligibilityRuleType, idx) => {
+            return (
+              <div>
+                <EligibilityRule
+                  key={idx}
+                  er={eligibilityRule}
+                  index={idx}
+                  setErule={(updatedRule: EligibilityRuleType, index: number) =>
+                    setTier({
+                      ...tier,
+                      eligibilityRules: tier.eligibilityRules.map((er, i) =>
+                        i === index ? updatedRule : er
+                      ),
+                    })
+                  }
+                  tier={tier}
+                  setTier={(duplicateRule: EligibilityRuleType) =>
+                    setTier({
+                      ...tier,
+                      eligibilityRules: [
+                        ...tier.eligibilityRules,
+                        duplicateRule,
+                      ],
+                    })
+                  }
+                  handleDelete={() =>
+                    setTier({
+                      ...tier,
+                      eligibilityRules: tier.eligibilityRules.filter(
+                        (_, i) => i !== idx
+                      ),
+                    })
+                  }
+                />
+                {idx !== eligibilityRules.length - 1 && (
+                  <div className="flex justify-center pt-2">
+                    <div className="text-center bg-gray-100 p-1 rounded-xl text-slate-600 text-xs w-15 border border-gray-200">
+                      {type}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         {/* value */}
         <div className="flex flex-col gap-2">
           <span className="">Cashback value</span>

@@ -69,7 +69,6 @@ export const AddRuleModal = ({
                   onClick={() => {
                     let category = er.category.split(" ")[0].toUpperCase();
                     let { description, ...rule } = r;
-                    console.log(category);
                     if (category === "CUSTOMER") {
                       rule.type =
                         rule.type.toUpperCase() as CustomerRuleTypeEnum;
